@@ -26,7 +26,8 @@
         <input class="form-control" id="id" type="text" :value="id" disabled />
       </div>
 
-      <p v-if="name && !id">查無此姓名</p>
+      <p v-if="msg">{{ msg }}</p>
+
     </section>
   </div>
 
