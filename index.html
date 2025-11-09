@@ -1,38 +1,49 @@
-<section class="form w-640">
-  <div class="text-center">
-    <h1>輸入姓名查詢 ID</h1>
-    <p>筆記文：<a href="https://letswrite.tw/google-forms-id-data/" target="_blank">Let's Write</a></p>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>輸入姓名查詢 ID</title>
+
+  <!-- 原版樣式 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" />
+  <link rel="stylesheet" href="dist/style.min.css" />
+
+  <!-- Vue 2 -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+</head>
+<body>
+  <div class="container" id="app">
+    <section class="form w-640">
+      <div class="text-center">
+        <h1>輸入姓名查詢 ID</h1>
+        <p>筆記文：<a href="https://letswrite.tw/google-forms-id-data/" target="_blank">Let's Write</a></p>
+      </div>
+
+      <div class="form-group">
+        <label for="main_name">請輸入姓名</label>
+        <input class="form-control" id="main_name" type="text" v-model="name" @input="lookupByName" autocomplete="off" />
+      </div>
+
+      <!-- ↓↓↓ 只新增這三段，保持原版排版 ↓↓↓ -->
+      <p v-if="loading">名單載入中...</p>
+      <p v-if="msg">{{ msg }}</p>
+      <ul v-if="matches.length > 1">
+        <li v-for="m in matches" :key="m.id">
+          <button type="button" @click="pick(m.id)">{{ m.id }}</button>
+          <span style="margin-left:8px;">{{ m.name }}</span>
+        </li>
+      </ul>
+      <!-- ↑↑↑ 只新增這三段，保持原版排版 ↑↑↑ -->
+
+      <div class="form-group" v-if="id">
+        <label for="id">對應 ID</label>
+        <input class="form-control" id="id" type="text" :value="id" disabled />
+      </div>
+    </section>
   </div>
 
-  <div class="form-group">
-    <label for="main_name">請輸入姓名</label>
-    <input
-      class="form-control"
-      id="main_name"
-      type="text"
-      v-model="name"
-      @input="lookupByName"
-      autocomplete="off"
-    />
-  </div>
+  <script src="dist/main.min.js"></script>
+</body>
+</html>
 
-  <!-- 載入中提示 -->
-  <p v-if="loading">名單載入中…</p>
-
-  <!-- 查無 / 提示訊息 -->
-  <p v-if="msg">{{ msg }}</p>
-
-  <!-- 多筆同名時顯示所有候選 ID（可點選帶入） -->
-  <ul v-if="matches.length > 1" class="id-list" style="padding-left:0; list-style:none;">
-    <li v-for="m in matches" :key="m.id" style="margin:6px 0;">
-      <button type="button" @click="pick(m.id)">{{ m.id }}</button>
-      <span style="margin-left:8px;">{{ m.name }}</span>
-    </li>
-  </ul>
-
-  <!-- 單筆命中時顯示對應 ID -->
-  <div class="form-group" v-if="id">
-    <label for="id">對應 ID</label>
-    <input class="form-control" id="id" type="text" :value="id" disabled />
-  </div>
-</section>
