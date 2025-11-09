@@ -1,37 +1,66 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>輸入姓名查詢 ID</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" />
-  <link rel="stylesheet" href="dist/style.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
-</head>
-<body>
-  <div class="container" id="app">
-    <section class="form w-640">
-      <div class="text-center">
-        <h1>輸入姓名查詢 ID</h1>
-        <p>筆記文：<a href="https://letswrite.tw/google-forms-id-data/" target="_blank">Let's Write</a></p>
-      </div>
+<!-- 你的輸入欄位（示意） -->
+<input id="nameInput" placeholder="請輸入姓名" />
+<input id="idInput" placeholder="學號將自動帶出" readonly />
 
-      <div class="form-group">
-        <label for="main_name">請輸入姓名</label>
-        <input class="form-control" id="main_name" type="text" v-model="name" @input="lookupByName" />
-      </div>
+<button id="submitBtn">送出</button>
+<script>
+  const GAS_URL = '你的_GAS_WebApp_URL';
+  const FORM_RESPONSE_URL = '你的_formResponse_URL';
+  const ENTRY_NAME = 'entry.姓名那一題的ID'; // 例如 entry.123456789
+  const ENTRY_ID   = 'entry.學號那一題的ID'; // 例如 entry.987654321
 
-      <div class="form-group" v-if="id">
-        <label for="id">對應 ID</label>
-        <input class="form-control" id="id" type="text" :value="id" disabled />
-      </div>
+  const nameInput = document.querySelector('#nameInput');
+  const idInput   = document.querySelector('#idInput');
 
-      <p v-if="msg">{{ msg }}</p>
+  async function fetchIdByName(name) {
+    const resp = await fetch(GAS_URL, {
+      method: 'POST',
+      body: new URLSearchParams({ name })
+    });
+    return resp.json();
+  }
 
-    </section>
-  </div>
+  nameInput.addEventListener('change', async () => {
+    const name = nameInput.value.trim();
+    if (!name) {
+      idInput.value = '';
+      return;
+    }
+    try {
+      const data = await fetchIdByName(name);
+      if (data.id) {
+        idInput.value = data.id;
+      } else if (data.error === 'DUPLICATE') {
+        idInput.value = '';
+        alert(`找到 ${data.count} 筆同名，請再加上班級或其他辨識資訊。`);
+      } else {
+        idInput.value = '';
+        alert('找不到這個姓名，請確認。');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('查詢失敗，請稍後再試');
+    }
+  });
 
-  <script src="dist/main.min.js"></script>
-</body>
-</html>
+  document.querySelector('#submitBtn').addEventListener('click', async () => {
+    const name = nameInput.value.trim();
+    const id = idInput.value.trim();
 
+    if (!name || !id) {
+      alert('請先輸入姓名並讓系統帶出學號');
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append(ENTRY_NAME, name);
+    fd.append(ENTRY_ID, id);
+
+    // 注意：跨網域到 Google 會報 CORS，但資料仍會進表單
+    await fetch(FORM_RESPONSE_URL, { method: 'POST', mode: 'no-cors', body: fd });
+
+    alert('已送出');
+    // 可視需求清空
+    // nameInput.value = ''; idInput.value = '';
+  });
+</script>
