@@ -38,7 +38,7 @@
       <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PGQ9WQT" height="0" width="0" style="display:none;visibility:hidden"></iframe>
     </noscript>
     <div class="container" id="app">
-      <div class="double-wrap hide" :class="{ hide: !loading }">
+      <div class="double-wrap" :class="{ hide: !loading }">
         <div class="double">
           <div class="double-bounce1"></div>
           <div class="double-bounce2"></div>
@@ -51,13 +51,8 @@
           <p>筆記文：<a href="https://letswrite.tw/google-forms-id-data/" target="_blank">Let's Write</a></p>
         </div>
         <div class="form-group">
-          <label for="main_name">請輸入姓名</label>
-<input class="form-control" id="main_name" type="text" v-model="name" @input="fetchDataByName"/>
-<div class="form-group" v-if="id">
-  <label for="show_id">ID</label>
-  <input class="form-control" id="show_id" type="text" v-model="id" disabled="disabled"/>
-</div>
-
+          <label for="main_id">請輸入 ID（0101 - 0112）</label>
+          <input class="form-control" id="main_id" type="number" v-model="id" @input="limitIdLen(id)"/>
         </div>
         <div class="two-col">
           <div class="col">
